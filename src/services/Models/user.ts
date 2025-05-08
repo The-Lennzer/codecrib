@@ -35,7 +35,7 @@ export default class User {
     }
 
     public async save(){
-        this.hashPassword();
+        await this.hashPassword();
 
         await client.query(
             'INSERT INTO users (name, username, password, email) VALUES ($1, $2, $3, $4)', 
@@ -50,9 +50,14 @@ export default class User {
         );
     }
 
-
-
-    
-
+    public static async fromDB(dbRow: any, ){
+        return new User({
+            id: dbRow.id,
+            name: dbRow.name,
+            username: dbRow.username,
+            password: dbRow.password,
+            email: dbRow.email
+        })
+    }
 
 }
