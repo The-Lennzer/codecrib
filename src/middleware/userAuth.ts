@@ -7,7 +7,6 @@ interface AuthenticatedRequest extends Request {
 
 export default async function userAuth(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void>{
     const token = req.header('Auth-Token');
-    console.log("token", token);
     if(!token) {
         res.status(401).json({error: 'Access Denied!'})
         return;
@@ -17,7 +16,7 @@ export default async function userAuth(req: AuthenticatedRequest, res: Response,
         req.userId = verified.userId;
         next();
     } catch (error) {
-        console.log("error")
+        console.log(error)
         res.status(400).send('Invalid Token');
         return;
     }

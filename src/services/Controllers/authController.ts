@@ -2,12 +2,24 @@ import {Request, Response, NextFunction} from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import User from '../Models/user';
 import {getUserByUsername} from '../Database/user';
-import dotenv from 'dotenv';
+import dotenv from 'dotenv';4
+import { registerSchema } from '../../validators/registrationValidator';
 dotenv.config();
 
 export const RegisterUser = async (req: Request, res: Response, next: NextFunction) => {
     try{
-        const {name, username, password, email} = req.body
+        const validatedBody = registerSchema.safeParse(req.body);
+        console.log('validatedBody: ', validatedBody);
+
+          if (!validatedBody.success) {
+            res.status(400).json({
+            error: 'Invalid Attributes!',
+            issues: validatedBody.error.issues,
+            });
+            return;
+        }
+
+        const {name, username, password, email} = validatedBody.data;
         const user = new User({name, username, password, email});
         user.save();
         res.status(201).send("User created successfully!");
@@ -30,7 +42,7 @@ export const LoginUser = async (req: Request, res:Response, next: NextFunction) 
 
         const isPasswordValid = await user.comparePassword(password)
 
-        if(!isPasswordValid) res.status(401).send('Password is incorrect!');
+        if(!isPasswordValid) res.status(401).send('Incorrect username or Password!');
         
         const token = jwt.sign({userId: user.id}, process.env.JWT_SECRET_KEY! as string, {expiresIn: '1h'});
         res.status(200).json({token});

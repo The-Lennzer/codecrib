@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "module": "commonjs",
+    "module": "commonjs",          // <-- change from node16 or esnext to commonjs
+    "moduleResolution": "node",
     "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true
   },
+  "include": ["src/**/*.ts"],
   "exclude": [
     "jest.config.ts",
     "**/*.test.ts"

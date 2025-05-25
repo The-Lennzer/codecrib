@@ -4,6 +4,6 @@ import userAuth from "../middleware/userAuth";
 
 const resourceRouter = Router();
 
-resourceRouter.get('/resource', userAuth, getThatResource);
+resourceRouter.get('/', userAuth, getThatResource);
 
 export default resourceRouter;
