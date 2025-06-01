@@ -20,10 +20,11 @@ export const RegisterUser = async (req: Request, res: Response, next: NextFuncti
         }
 
         const {name, username, password, email} = validatedBody.data;
-        const user = new User({name, username, password, email});
+        const email_verified = false;
+        const user = new User({name, username, password, email, email_verified});
         user.save();
         res.status(201).send("User created successfully!");
-    }catch(err){
+    } catch(err) {
         res.status(500).send("User creation failed!");
         console.log("user creation error:", err);
     }

@@ -8,6 +8,7 @@ export interface userProps {
     username: string;
     password: string;
     email: string;
+    email_verified: boolean;
 }
 
 export default class User {
@@ -16,6 +17,7 @@ export default class User {
     public username: string;
     private password: string;
     public email: string;
+    public email_verified: boolean;
 
     constructor({id, name, username, password, email}: userProps) {
         this.id = id;
@@ -23,6 +25,7 @@ export default class User {
         this.username = username;
         this.password = password;
         this.email = email;
+        this.email_verified = false;
     }
 
     public async hashPassword(): Promise<void> {
@@ -38,8 +41,8 @@ export default class User {
         await this.hashPassword();
 
         await client.query(
-            'INSERT INTO users (name, username, password, email) VALUES ($1, $2, $3, $4)', 
-            [this.name, this.username, this.password, this.email]
+            'INSERT INTO users (name, username, password, email, email_verified) VALUES ($1, $2, $3, $4, $5)', 
+            [this.name, this.username, this.password, this.email, this.email_verified]
         );
     }
 
@@ -56,7 +59,8 @@ export default class User {
             name: dbRow.name,
             username: dbRow.username,
             password: dbRow.password,
-            email: dbRow.email
+            email: dbRow.email,
+            email_verified: dbRow.email_verified
         })
     }
 
