@@ -9,7 +9,6 @@ CREATE TABLE projects (
     colab_status BOOLEAN NOT NULL,
     percentage_complete SMALLINT CHECK (percentage_complete >= 0 AND percentage_complete <= 100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_public BOOLEAN DEFAULT TRUE,
     tags TEXT[],
     status project_status DEFAULT 'active'
