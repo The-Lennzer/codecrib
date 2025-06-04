@@ -1,16 +1,15 @@
 import {Request, Response, NextFunction} from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import User from '../Models/user';
-import {getUserByUsername} from '../Database/user';
 import dotenv from 'dotenv';4
 import { registerSchema } from '../../validators/registrationValidator';
+import AuthManager from '../Managers/authManager';
 dotenv.config();
 
 export const RegisterUser = async (req: Request, res: Response, next: NextFunction) => {
     try{
         const validatedBody = registerSchema.safeParse(req.body);
         console.log('validatedBody: ', validatedBody);
-
           if (!validatedBody.success) {
             res.status(400).json({
             error: 'Invalid Attributes!',
@@ -18,11 +17,9 @@ export const RegisterUser = async (req: Request, res: Response, next: NextFuncti
             });
             return;
         }
-
         const {name, username, password, email} = validatedBody.data;
-        const email_verified = false;
-        const user = new User({name, username, password, email, email_verified});
-        user.save();
+        const user = await AuthManager.registerUser({name, username, password, email});
+        if (user === null) { throw new Error("User creation failed!"); }
         res.status(201).send("User created successfully!");
     } catch(err) {
         res.status(500).send("User creation failed!");
@@ -35,17 +32,10 @@ export const LoginUser = async (req: Request, res:Response, next: NextFunction) 
     console.log(process.env.JWT_SECRET_KEY);
     try{
         const {username, password} = req.body;
-        const user = await getUserByUsername(username);
-        
-
-        if( !user || user === null) { res.status(404).send('User not found!'); }
-        else{
-
-        const isPasswordValid = await user.comparePassword(password)
-
-        if(!isPasswordValid) res.status(401).send('Incorrect username or Password!');
-        
-        const token = jwt.sign({userId: user.id}, process.env.JWT_SECRET_KEY! as string, {expiresIn: '1h'});
+        const token = await AuthManager.loginUser(username, password);
+        if(token === null) {
+            throw new Error("User login failed!");
+        } else {
         res.status(200).json({token});
         return;
         }
