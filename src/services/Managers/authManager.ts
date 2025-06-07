@@ -13,7 +13,7 @@ export default class AuthManager {
 
         const token = jwt.sign({userId: user.id}, process.env.JWT_SECRET_KEY! as string, {expiresIn: '1h'});
 
-        return token;
+        return [token, user];
     }
 
     static async registerUser(userProps: {

@@ -6,7 +6,7 @@ import { registerSchema } from '../../validators/registrationValidator';
 import AuthManager from '../Managers/authManager';
 dotenv.config();
 
-export const RegisterUser = async (req: Request, res: Response, next: NextFunction) => {
+const RegisterUser = async (req: Request, res: Response, next: NextFunction) => {
     try{
         const validatedBody = registerSchema.safeParse(req.body);
         console.log('validatedBody: ', validatedBody);
@@ -27,23 +27,52 @@ export const RegisterUser = async (req: Request, res: Response, next: NextFuncti
     }
 }
 
-export const LoginUser = async (req: Request, res:Response, next: NextFunction) => {
+const LoginUser = async (req: Request, res:Response, next: NextFunction) => {
     console.log("in login function", req.body);
     console.log(process.env.JWT_SECRET_KEY);
     try{
         const {username, password} = req.body;
-        const token = await AuthManager.loginUser(username, password);
+        const [token, user] = await AuthManager.loginUser(username, password);
         if(token === null) {
             throw new Error("User login failed!");
         } else {
-        res.status(200).json({token});
-        return;
+            res.cookie('auth_token', token, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax',
+                maxAge: 60 * 60 * 1000
+            });
+            res.status(200).json({user});
+            return;
         }
-
     }catch(err){
         console.log("user login error:", err);
-        res.status(500).send("User login failed!");
+        res.status(400).send("User login failed!");
         return;     
     }
+}
 
+const hydrateUser = async (req: Request, res: Response, next: NextFunction) => {
+    try{
+        const userId = req.userId as string;
+        const user = await User.findUserById(userId);
+
+        if(!user) {
+            res.status(404).send('User not found!');
+            return;
+        }
+
+        res.status(200).json({user});
+
+    } catch(err){
+        console.log("user hydration error:", err);
+        res.status(500).send("User hydration failed!");
+        return;     
+    }
+}
+
+export {
+    RegisterUser,
+    LoginUser,
+    hydrateUser
 }

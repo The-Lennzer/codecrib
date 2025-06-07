@@ -5,13 +5,16 @@ import client from './services/Database/setup';
 import cors from 'cors';
 import projectRouter from './routes/projectRoutes';
 import postRouter from './routes/postRoutes';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 app.use(cors({
-  origin: 'http://localhost:3000'
+  origin: 'http://localhost:3000',
+  credentials: true
 }))
 
 app.use(express.json());
+app.use(cookieParser());
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/projects', projectRouter);
 app.use('/api/v1/posts', postRouter);

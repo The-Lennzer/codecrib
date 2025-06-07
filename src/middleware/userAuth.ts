@@ -6,7 +6,8 @@ interface AuthenticatedRequest extends Request {
 }
 
 export default async function userAuth(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void>{
-    const token = req.header('Auth-Token');
+    const token = req.cookies['auth_token'];
+    console.log("token - non empty means success in middleware", token);
     if(!token) {
         res.status(401).json({error: 'Access Denied!'})
         return;
